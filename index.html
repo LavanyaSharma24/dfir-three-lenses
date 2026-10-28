@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catching an Intruder Three Ways — DFIR Project</title>
+  <meta name="description" content="Multi-source detection and forensic reconstruction of a simulated Windows 11 intrusion using open-source tooling. MIT Bengaluru DFIR group project.">
+  <meta name="theme-color" content="#0E1B2A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand" href="#top" aria-label="Back to top">
+        <span class="brand-mark" aria-hidden="true">◆</span>
+        <span>DFIR · Three Lenses</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+        <span class="nav-toggle-bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#attack">Attack</a></li>
+        <li><a href="#coverage">Coverage</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#errors">Errors</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- 1. HERO -->
+    <section class="hero" id="top">
+      <div class="container hero-inner">
+        <p class="kicker">DFIR Group Project · Case File</p>
+        <h1>Catching an Intruder Three Ways</h1>
+        <p class="hero-sub">Multi-Source Detection &amp; Forensic Reconstruction of a Simulated Windows&nbsp;11 Intrusion Using Open-Source Tooling</p>
+        <ul class="pills" aria-label="Evidence sources">
+          <li class="pill"><span class="pill-dot" aria-hidden="true"></span>Endpoint Logs</li>
+          <li class="pill"><span class="pill-dot" aria-hidden="true"></span>Disk Artifacts</li>
+          <li class="pill"><span class="pill-dot" aria-hidden="true"></span>Physical Memory</li>
+        </ul>
+        <p class="thesis">One attack, three independent lenses — and no single source saw all of it.</p>
+        <dl class="hero-meta">
+          <div>
+            <dt>Course</dt>
+            <dd>Digital Forensics (CSE_3135) × Incident Response &amp; Threat Intelligence (CSE_3136) — MIT Bengaluru</dd>
+          </div>
+          <div>
+            <dt>Team</dt>
+            <dd>Lavanya Sharma · Ayushi · Mansi Sharma · Alina Noorain</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- 2. OVERVIEW -->
+    <section class="section reveal" id="overview" aria-labelledby="overview-h">
+      <div class="container">
+        <p class="kicker"><span class="num">01</span> Overview</p>
+        <h2 id="overview-h">The research question</h2>
+        <div class="prose">
+          <p>Incident responders rarely get the whole story. They reconstruct an attack from fragments: an event log here, a prefetch file there, maybe a memory image if they were quick. Every source is incomplete in its own way. We wanted to measure <em>how</em> incomplete, by running a known attack and checking what each lens could recover.</p>
+        </div>
+        <blockquote class="rq">
+          <p>When a known set of attacker techniques is executed, how much can be detected and forensically reconstructed from each evidence source — and where does each one succeed or fail?</p>
+        </blockquote>
+        <ul class="stats">
+          <li class="stat"><span class="stat-num">11</span><span class="stat-label">ATT&amp;CK techniques attempted</span></li>
+          <li class="stat"><span class="stat-num stat-ok">7</span><span class="stat-label">ran with full success</span></li>
+          <li class="stat"><span class="stat-num stat-ok">8/8</span><span class="stat-label">executed techniques detected</span></li>
+          <li class="stat"><span class="stat-num">297/297</span><span class="stat-label">evidence files hash-verified</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. METHODOLOGY & SAFETY -->
+    <section class="section section-alt reveal" id="method" aria-labelledby="method-h">
+      <div class="container">
+        <p class="kicker"><span class="num">02</span> Methodology &amp; Safety</p>
+        <h2 id="method-h">A five-step pipeline</h2>
+        <ol class="pipeline">
+          <li class="step">
+            <span class="step-n" aria-hidden="true">1</span>
+            <h3>Isolate</h3>
+            <p>Windows 11 25H2 VM on VMware, host-only networking.</p>
+          </li>
+          <li class="step">
+            <span class="step-n" aria-hidden="true">2</span>
+            <h3>Instrument</h3>
+            <p>Sysmon + PowerShell script-block logging.</p>
+          </li>
+          <li class="step">
+            <span class="step-n" aria-hidden="true">3</span>
+            <h3>Attack</h3>
+            <p>11 ATT&amp;CK techniques via Atomic Red Team.</p>
+          </li>
+          <li class="step">
+            <span class="step-n" aria-hidden="true">4</span>
+            <h3>Acquire</h3>
+            <p>Memory, logs, prefetch, registry, all SHA-256 hashed.</p>
+          </li>
+          <li class="step">
+            <span class="step-n" aria-hidden="true">5</span>
+            <h3>Analyse ×3</h3>
+            <p>Detection, Disk and Memory tracks, run independently.</p>
+          </li>
+        </ol>
+
+        <div class="method-grid">
+          <aside class="callout callout-safety" aria-labelledby="safety-h">
+            <p class="callout-tag">Safety</p>
+            <h3 id="safety-h">Contained by design</h3>
+            <p>All attacks ran only against our own VM on host-only networking with no route to any real network, verified by <strong>100% packet loss</strong>. No external or institutional system was ever touched.</p>
+          </aside>
+
+          <figure class="shot">
+            <button class="shot-btn" type="button" aria-label="Enlarge: hash verification screenshot">
+              <img src="images/fig01_hash_verification.png" alt="verify_hashes run against hashes.csv using SHA-256, reporting match=297 mismatch=0 missing=0." loading="lazy">
+            </button>
+            <figcaption><span class="fig-tag">Chain of custody</span> 297/297 evidence files re-hashed — 0 mismatches</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TOOLS -->
+    <section class="section reveal" id="tools" aria-labelledby="tools-h">
+      <div class="container">
+        <p class="kicker"><span class="num">03</span> Tools</p>
+        <h2 id="tools-h">Open-source, and chosen for a reason</h2>
+        <div class="table-wrap" role="region" aria-labelledby="tools-h" tabindex="0">
+          <table class="data-table">
+            <thead>
+              <tr><th scope="col">Tool</th><th scope="col">Role</th><th scope="col">Why this one</th><th scope="col">Alternative considered</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">VMware Workstation</th><td>Runs the isolated victim VM</td><td>Host had Hyper-V active; VMware cooperates where VirtualBox crawls</td><td class="muted">VirtualBox (slow under Hyper-V)</td></tr>
+              <tr><th scope="row">Sysmon</th><td>Rich endpoint telemetry</td><td>Full command lines, parent, hashes — beyond default logs</td><td class="muted">Default Windows auditing</td></tr>
+              <tr><th scope="row">Atomic Red Team</th><td>Safe adversary emulation</td><td>One ready test per ATT&amp;CK technique; no real malware</td><td class="muted">Caldera / manual exploitation</td></tr>
+              <tr><th scope="row">Hayabusa + Chainsaw</th><td>Detection over logs</td><td>~4,500 Sigma rules applied offline in seconds; no SIEM to deploy</td><td class="muted">Full Wazuh/Splunk SIEM</td></tr>
+              <tr><th scope="row">Prefetch + Registry <span class="sub">(Eric Zimmerman tools)</span></th><td>Disk forensics</td><td>Durable execution &amp; persistence proof that survives reboots</td><td class="muted">—</td></tr>
+              <tr><th scope="row">Volatility 3</th><td>Memory forensics</td><td>Standard open-source memory framework</td><td class="muted">WinPMEM / vmss2core (acquisition)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. THE ATTACK -->
+    <section class="section section-alt reveal" id="attack" aria-labelledby="attack-h">
+      <div class="container">
+        <p class="kicker"><span class="num">04</span> The Attack</p>
+        <h2 id="attack-h">Eleven techniques, three outcomes</h2>
+        <div class="table-wrap" role="region" aria-labelledby="attack-h" tabindex="0">
+          <table class="data-table attack-table">
+            <thead>
+              <tr><th scope="col">ID</th><th scope="col">Technique</th><th scope="col">Tactic</th><th scope="col">Result</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">T1059.001</td><th scope="row">PowerShell Command Execution</th><td>Execution</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1053.005</td><th scope="row">Scheduled Task (persistence)</th><td>Persistence</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1547.001</td><th scope="row">Registry Run Key (persistence)</th><td>Persistence</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1112</td><th scope="row">Modify Registry</th><td>Defense Evasion</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1016</td><th scope="row">Network Config Discovery</th><td>Discovery</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1082</td><th scope="row">System Information Discovery</th><td>Discovery</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1057</td><th scope="row">Process Discovery (tasklist)</th><td>Discovery</td><td><span class="badge badge-ok">OK</span></td></tr>
+              <tr><td class="mono">T1033</td><th scope="row">System Owner/User Discovery</th><td>Discovery</td><td><span class="badge badge-warn">Partial</span></td></tr>
+              <tr><td class="mono">T1047</td><th scope="row">WMI Reconnaissance</th><td>Discovery</td><td><span class="badge badge-bad">Failed</span> <span class="result-note">wmic removed in Win11 25H2</span></td></tr>
+              <tr class="row-muted"><td class="mono">T1070.004</td><th scope="row">File Deletion</th><td>—</td><td><span class="badge badge-skip">Skipped</span> <span class="result-note">no Windows atomic</span></td></tr>
+              <tr class="row-muted"><td class="mono">T1057 <span class="sub">(test 1)</span></td><th scope="row">Process Discovery</th><td>—</td><td><span class="badge badge-skip">Skipped</span> <span class="result-note">no Windows atomic</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note"><strong>Note:</strong> T1047 and the WMIC part of T1033 both failed because Microsoft removed <code>wmic</code> in Windows 11 25H2. Attacker tooling has to keep up with OS changes too.</p>
+      </div>
+    </section>
+
+    <!-- 6. COVERAGE MATRIX -->
+    <section class="section section-feature reveal" id="coverage" aria-labelledby="coverage-h">
+      <div class="container">
+        <p class="kicker"><span class="num">05</span> The Coverage Matrix</p>
+        <h2 id="coverage-h">Who saw what</h2>
+        <p class="lede">Each of the 8 executed techniques, checked against each evidence source. Hover, focus or tap a cell for the detail.</p>
+
+        <div class="matrix-card card">
+          <div class="table-wrap" role="region" aria-labelledby="coverage-h" tabindex="0">
+            <table class="matrix" id="matrix">
+              <thead>
+                <tr>
+                  <th scope="col" class="matrix-corner">Technique</th>
+                  <th scope="col">Detection <span class="sub">logs</span></th>
+                  <th scope="col">Prefetch</th>
+                  <th scope="col">Registry</th>
+                  <th scope="col">Memory</th>
+                </tr>
+              </thead>
+              <tbody id="matrix-body">
+                <tr><th scope="row"><span class="mono">T1059.001</span> <span class="tname">PowerShell</span></th><td><button type="button" class="chip chip-y" data-tip="Detected: Sysmon process-creation and PowerShell script-block rules fired on the execution." aria-label="T1059.001 Detection: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: POWERSHELL.EXE prefetch entry within 0–4 s of ground truth." aria-label="T1059.001 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-na" data-tip="Not applicable: running PowerShell does not write registry state by itself." aria-label="T1059.001 Registry: not applicable">–</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1059.001 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1053.005</span> <span class="tname">Scheduled task</span></th><td><button type="button" class="chip chip-y" data-tip="Detected: scheduled-task creation rules fired on schtasks.exe." aria-label="T1053.005 Detection: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: SCHTASKS.EXE prefetch entry at the attack time." aria-label="T1053.005 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: two tasks in TaskCache (OnLogon / OnStartup, action cmd.exe /c calc.exe), still live 7 days later." aria-label="T1053.005 Registry: detected or recovered">Y</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1053.005 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1547.001</span> <span class="tname">Run key</span></th><td><button type="button" class="chip chip-y" data-tip="Detected: Run-key persistence rules fired on the registry write." aria-label="T1547.001 Detection: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: REG.EXE prefetch entry at the attack time." aria-label="T1547.001 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: HKCU Run value “Atomic Red Team”, still live 7 days later." aria-label="T1547.001 Registry: detected or recovered">Y</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1547.001 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1112</span> <span class="tname">Modify registry</span></th><td><button type="button" class="chip chip-c" data-tip="Detected but mis-tagged as T1137. A defender triaging by ATT&amp;CK ID would mis-attribute it." aria-label="T1112 Detection: detected with a caveat">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: REG.EXE prefetch entry. This is the only proof the technique ran." aria-label="T1112 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-n" data-tip="Rewrote a value to its existing default, so it left no registry trace. It is provable only via Prefetch." aria-label="T1112 Registry: not present">N</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1112 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1016</span> <span class="tname">Net discovery</span></th><td><button type="button" class="chip chip-y" data-tip="Detected: network-discovery rules fired on arp / netsh / nbtstat." aria-label="T1016 Detection: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: arp, netsh and nbtstat each ran exactly once, so those runs can only be the attack." aria-label="T1016 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered from the registry track." aria-label="T1016 Registry: detected or recovered">Y</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1016 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1082</span> <span class="tname">System info</span></th><td><button type="button" class="chip chip-y" data-tip="Detected: system-information discovery rules fired on systeminfo." aria-label="T1082 Detection: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: SYSTEMINFO.EXE ran exactly once, so the run can only be the attack." aria-label="T1082 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-na" data-tip="Not applicable: read-only discovery leaves no registry state (benign default)." aria-label="T1082 Registry: not applicable">–</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1082 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1057</span> <span class="tname">tasklist</span></th><td><button type="button" class="chip chip-c" data-tip="Missed by default rules. Caught only by a threat-hunting / custom Sigma rule." aria-label="T1057 Detection: detected with a caveat">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: TASKLIST.EXE ran exactly once, so the run can only be the attack." aria-label="T1057 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-na" data-tip="Not applicable: read-only discovery leaves no registry state (benign default)." aria-label="T1057 Registry: not applicable">–</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1057 Memory: not present">N</button></td></tr>
+                <tr><th scope="row"><span class="mono">T1033</span> <span class="tname">Owner/user (partial)</span></th><td><button type="button" class="chip chip-y" data-tip="Detected: user-discovery rules fired on the parts that ran. The WMIC portion failed because wmic is gone in 25H2." aria-label="T1033 Detection: detected or recovered">Y</button></td><td><button type="button" class="chip chip-y" data-tip="Recovered: WHOAMI, QUSER and QWINSTA appear in Prefetch at the attack time. No WMIC.EXE entry, which corroborates the failure." aria-label="T1033 Prefetch: detected or recovered">Y</button></td><td><button type="button" class="chip chip-na" data-tip="Not applicable: read-only discovery leaves no registry state (benign default)." aria-label="T1033 Registry: not applicable">–</button></td><td><button type="button" class="chip chip-n" data-tip="Not present: the memory image could not be parsed and a string sweep found 0 indicators." aria-label="T1033 Memory: not present">N</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ul class="legend" aria-label="Legend">
+            <li><span class="chip chip-y chip-sm" aria-hidden="true">Y</span> Detected / recovered</li>
+            <li><span class="chip chip-c chip-sm" aria-hidden="true">Y</span> Detected with a caveat</li>
+            <li><span class="chip chip-n chip-sm" aria-hidden="true">N</span> Not present</li>
+            <li><span class="chip chip-na chip-sm" aria-hidden="true">–</span> Not applicable (benign default)</li>
+          </ul>
+        </div>
+
+        <p class="headline">Every executed technique was recovered by at least two independent sources, and 7 of 8 by both logs and prefetch. <span class="headline-bad">Memory alone caught nothing.</span></p>
+      </div>
+      <div class="tooltip" id="matrix-tip" role="tooltip" hidden></div>
+    </section>
+
+    <!-- 7. RESULTS -->
+    <section class="section reveal" id="results" aria-labelledby="results-h">
+      <div class="container">
+        <p class="kicker"><span class="num">06</span> Results</p>
+        <h2 id="results-h">Three tracks</h2>
+
+        <div class="tabs" role="tablist" aria-label="Analysis tracks">
+          <button class="tab" role="tab" id="tab-detect" aria-controls="panel-detect" aria-selected="true">
+            <span class="tab-n">Track 1</span> Detection
+          </button>
+          <button class="tab" role="tab" id="tab-disk" aria-controls="panel-disk" aria-selected="false" tabindex="-1">
+            <span class="tab-n">Track 2</span> Disk
+          </button>
+          <button class="tab" role="tab" id="tab-mem" aria-controls="panel-mem" aria-selected="false" tabindex="-1">
+            <span class="tab-n">Track 3</span> Memory
+          </button>
+        </div>
+
+        <!-- Track 1 -->
+        <div class="tab-panel" role="tabpanel" id="panel-detect" aria-labelledby="tab-detect" tabindex="0">
+          <h3 class="panel-title">Track 1 · Detection over logs</h3>
+          <ul class="stats stats-sm">
+            <li class="stat"><span class="stat-num">10,277</span><span class="stat-label">events processed by Hayabusa</span></li>
+            <li class="stat"><span class="stat-num">5,608</span><span class="stat-label">rule hits (~50% data reduction)</span></li>
+            <li class="stat"><span class="stat-num stat-ok">8/8</span><span class="stat-label">executed techniques detected</span></li>
+            <li class="stat"><span class="stat-num">2</span><span class="stat-label">custom Sigma rules written</span></li>
+          </ul>
+          <div class="panel-grid">
+            <div class="prose">
+              <p>Hayabusa ran the Sigma corpus offline over the Sysmon and PowerShell logs. Chainsaw independently confirmed the results. All 8 executed techniques fired at least one rule. Two of them came with caveats:</p>
+              <ul class="findings">
+                <li class="finding finding-warn"><strong>T1057 missed by default rules.</strong> The <code>tasklist</code> discovery wasn't flagged by the stock corpus. We only caught it with threat-hunting and a custom Sigma rule.</li>
+                <li class="finding finding-warn"><strong>T1112 mis-tagged as T1137.</strong> The detection fired, but under the wrong ATT&amp;CK ID. A defender triaging by ID would attribute it to the wrong technique.</li>
+              </ul>
+            </div>
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: Hayabusa summary screenshot">
+                <img src="images/hayabusa-summary.png" alt="Hayabusa results summary: 5,147 of 10,277 events with hits, 5,608 total detections, broken down by severity." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T1-a</span> Hayabusa results summary — 10,277 events, 5,608 detections</figcaption>
+            </figure>
+          </div>
+          <div class="fig-row">
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: full Hayabusa run screenshot">
+                <img src="images/hayabusa-full-output.png" alt="Full Hayabusa dfir-timeline run in a terminal, showing severity totals, first and last timestamps, and the top high, medium, low and informational alerts." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T1-b</span> Full Hayabusa run with severity breakdown and top alerts</figcaption>
+            </figure>
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: custom Sigma rule hits screenshot">
+                <img src="images/custom-sigma-hits.png" alt="grep of detection results for custom rules: hits for Process Discovery via Tasklist.EXE tagged T1057 and Registry Modification via Reg.EXE tagged T1112." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T1-c</span> Custom Sigma rules firing on T1057 (tasklist) and T1112 (reg add)</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <!-- Track 2 -->
+        <div class="tab-panel" role="tabpanel" id="panel-disk" aria-labelledby="tab-disk" tabindex="0">
+          <h3 class="panel-title">Track 2 · Disk artifacts</h3>
+          <ul class="stats stats-sm">
+            <li class="stat"><span class="stat-num">0–4 s</span><span class="stat-label">prefetch offset from ground truth</span></li>
+            <li class="stat"><span class="stat-num">7 days</span><span class="stat-label">persistence still live afterwards</span></li>
+            <li class="stat"><span class="stat-num stat-bad">0</span><span class="stat-label">WMIC.EXE prefetch entries</span></li>
+          </ul>
+          <div class="prose prose-wide">
+            <ul class="findings">
+              <li class="finding finding-ok"><strong>Prefetch timed every technique.</strong> It placed each technique's binaries within 0–4 seconds of ground truth. <code>arp</code>, <code>netsh</code>, <code>nbtstat</code>, <code>systeminfo</code> and <code>tasklist</code> each ran exactly once, so those runs can only be the attack.</li>
+              <li class="finding finding-ok"><strong>Negative evidence.</strong> There is no <code>WMIC.EXE</code> prefetch at all. The absence independently confirms that the WMI techniques failed.</li>
+              <li class="finding finding-ok"><strong>Persistence outlived the attack.</strong> Seven days later, an HKCU Run value named <code>Atomic Red Team</code> and two scheduled tasks (OnLogon / OnStartup, action <code>cmd.exe /c calc.exe</code>) were all still live.</li>
+              <li class="finding finding-bad"><strong>T1112 left no registry trace.</strong> It rewrote a value to its existing default, so only Prefetch can prove it ran.</li>
+            </ul>
+          </div>
+          <div class="fig-grid">
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: prefetch binaries screenshot">
+                <img src="images/fig02_prefetch_attack_binaries.png" alt="Prefetch table of attack-relevant executables with run counts and run times on 2026-10-06: SCHTASKS, REG, NETSH, ARP, NBTSTAT, WHOAMI, QUSER, QWINSTA, SYSTEMINFO and TASKLIST, ending with WMIC.EXE prefetch files present: 0." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T2-a</span> Attack binaries in Prefetch, each within 0–4 s of ground truth. Zero WMIC.EXE files.</figcaption>
+            </figure>
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: TaskCache scheduled tasks screenshot">
+                <img src="images/fig04_taskcache_tasks.png" alt="TaskCache registry tree showing tasks T1053_005_OnLogon and T1053_005_OnStartup, both created 2026-10-06 13:25:29 by DESKTOP-3IV7CLV\analyst with action cmd.exe /c calc.exe and LastRunTime empty." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T2-b</span> Two scheduled tasks in TaskCache, still live 7 days later</figcaption>
+            </figure>
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: Run key screenshot">
+                <img src="images/fig03_hkcu_run_key.png" alt="HKCU Software Microsoft Windows CurrentVersion Run key, LastWrite 2026-10-06 17:09:09, listing OneDrive, Atomic Red Team pointing to C:\Path\AtomicRedTeam.exe, and Microsoft Edge auto-launch." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T2-c</span> HKCU Run value “Atomic Red Team”</figcaption>
+            </figure>
+            <figure class="shot">
+              <button class="shot-btn" type="button" aria-label="Enlarge: T1112 no-trace screenshot">
+                <img src="images/fig05_hidefileext_t1112.png" alt="Explorer Advanced key with LastWrite 2026-10-06 13:05:26, earlier than the T1112 attack logged at 13:27:29; HideFileExt is 1, the Windows default." loading="lazy">
+              </button>
+              <figcaption><span class="fig-tag">Fig. T2-d</span> HideFileExt is still at its default, and the key's LastWrite predates the attack, so the registry holds no trace</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <!-- Track 3 -->
+        <div class="tab-panel" role="tabpanel" id="panel-mem" aria-labelledby="tab-mem" tabindex="0">
+          <h3 class="panel-title">Track 3 · Physical memory</h3>
+          <aside class="callout callout-limit" aria-labelledby="limit-h">
+            <p class="callout-tag">Documented limitation</p>
+            <h4 id="limit-h">Memory acquisition failed on a hardened OS</h4>
+            <ol class="chain">
+              <li><span class="chain-k">Acquire</span> WinPMEM's kernel driver would not load on hardened Windows 11 25H2 <code>error 0x241</code>.</li>
+              <li><span class="chain-k">Fallback</span> Captured memory by suspending the VMware hypervisor instead.</li>
+              <li><span class="chain-k">Parse</span> Volatility 3 could not build a translation layer from that image, on two different machines.</li>
+              <li><span class="chain-k">Sweep</span> A raw string sweep of the 1.9&nbsp;GB image returned <strong>0 attack indicators</strong>.</li>
+            </ol>
+            <p class="callout-lesson"><strong>Takeaway:</strong> on a current hardened OS, acquire memory promptly with a validated tool, and verify the image before the system changes.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. ERRORS -->
+    <section class="section section-alt reveal" id="errors" aria-labelledby="errors-h">
+      <div class="container">
+        <p class="kicker"><span class="num">07</span> Errors We Solved</p>
+        <h2 id="errors-h">What broke, and what we did</h2>
+        <ul class="err-grid">
+          <li class="card err">
+            <p class="err-p"><span class="err-k">Problem</span>Hyper-V blocked VirtualBox</p>
+            <p class="err-f"><span class="err-k">Fix</span>Switched to VMware Workstation.</p>
+          </li>
+          <li class="card err">
+            <p class="err-p"><span class="err-k">Problem</span>Windows 11 refused to install (4&nbsp;GB RAM / 52&nbsp;GB disk minimums)</p>
+            <p class="err-f"><span class="err-k">Fix</span>Resized the VM to 4&nbsp;GB / 60&nbsp;GB.</p>
+          </li>
+          <li class="card err">
+            <p class="err-p"><span class="err-k">Problem</span>Defender blocked our PowerShell (Tamper Protection, <code>0xc0000142</code>)</p>
+            <p class="err-f"><span class="err-k">Fix</span>Disabled real-time protection and added an exclusion via the Security GUI.</p>
+          </li>
+          <li class="card err">
+            <p class="err-p"><span class="err-k">Problem</span>Windows updated mid-setup</p>
+            <p class="err-f"><span class="err-k">Fix</span>Re-verified timezone, Sysmon and Defender state before attacking.</p>
+          </li>
+          <li class="card err">
+            <p class="err-p"><span class="err-k">Problem</span>WinPMEM driver blocked (<code>0x241</code>)</p>
+            <p class="err-f"><span class="err-k">Fix</span>Fell back to a VMware suspend image and documented it.</p>
+          </li>
+          <li class="card err">
+            <p class="err-p"><span class="err-k">Problem</span>Volatility couldn't parse the suspend image</p>
+            <p class="err-f"><span class="err-k">Fix</span>Reported it as a modern-OS acquisition finding.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 9. TEAM & LEARNINGS -->
+    <section class="section reveal" id="team" aria-labelledby="team-h">
+      <div class="container">
+        <p class="kicker"><span class="num">08</span> Team &amp; Learnings</p>
+        <h2 id="team-h">Who did what, and what we learned</h2>
+        <div class="team-grid">
+          <ul class="roles">
+            <li class="card role">
+              <h3>Lavanya Sharma</h3>
+              <p>Lab build, instrumentation, attack execution, evidence acquisition, memory track &amp; integration</p>
+            </li>
+            <li class="card role">
+              <h3>Ayushi</h3>
+              <p>Detection: Hayabusa, Chainsaw, custom Sigma</p>
+            </li>
+            <li class="card role">
+              <h3>Mansi Sharma</h3>
+              <p>Disk forensics: prefetch &amp; registry, Autopsy validation</p>
+            </li>
+            <li class="card role">
+              <h3>Alina Noorain</h3>
+              <p>Memory track (initial)</p>
+            </li>
+          </ul>
+          <ol class="learnings">
+            <li>No single source is complete.</li>
+            <li>A detection that fires is not necessarily a correct detection.</li>
+            <li>Persistence lives on disk long after an attack; memory is fleeting.</li>
+            <li>On a hardened OS, acquisition is the hard part.</li>
+            <li>Upfront instrumentation decides what evidence exists at all.</li>
+            <li>Documenting failures honestly makes the work stronger.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 10. FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h2 class="footer-h">Limitations</h2>
+          <ul class="footer-list">
+            <li>Single isolated host</li>
+            <li>Small, discovery-heavy technique set</li>
+            <li>Evidence collected one week after the attack</li>
+            <li>Results depend on the rule corpus</li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="footer-h">Future work</h2>
+          <ul class="footer-list">
+            <li>Add a second host for network forensics &amp; lateral movement</li>
+            <li>Capture memory promptly with a validated acquirer</li>
+            <li>Expand techniques &amp; custom detections</li>
+            <li>Publish Vagrant/Ansible automation</li>
+          </ul>
+        </div>
+        <div class="footer-repo">
+          <h2 class="footer-h">Source</h2>
+          <a class="btn" href="https://github.com/LavanyaSharma24/dfir-three-lenses">View the repository on GitHub</a>
+        </div>
+      </div>
+      <p class="credit">MIT Bengaluru · 2026</p>
+    </div>
+  </footer>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Screenshot viewer">
+    <button class="lightbox-close" type="button" aria-label="Close">×</button>
+    <figure>
+      <img id="lightbox-img" src="" alt="">
+      <figcaption id="lightbox-cap"></figcaption>
+    </figure>
+  </dialog>
+</body>
+</html>
